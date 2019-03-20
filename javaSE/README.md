@@ -80,11 +80,108 @@
 
 ## equals和hashcode
 
+### equals
 
++ 为什么重写`equals`方法
 
-## tostring
+  每个类默认的`equals`方法是继承`Object`的`equals`方法
 
+  ```java
+  public boolean equals(Object obj) {
+    return (this == obj);
+  }
+  ```
 
+  该方法只能判断对象的引用是否相等，也就是这两个对象是否为同一个对象
+
+  实际应用中的需求是，如果两个对象的类型及属性完全相同，即使不是同1个对象，也认为这两个对象相等，此时就需要重写`equals`方法
+
++ 如何重写
+
+  在`IDEA`中，在类内部使用`ctrl+enter`，按下图自动生成`equals`和`hashcode`方法
+
+  ![image-20190319162829773](assets/image-20190319162829773.png) ![image-20190319214452836](assets/image-20190319214452836.png)  
+
+  ```java
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    A a = (A) o;
+    return Objects.equals(name, a.name) &&
+      Objects.equals(age, a.age);
+  }
+  
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, age);
+  }
+  ```
+
+### hashcode
+
++ 介绍
+
+  `hashcode`方法作用是根据对象属性值生成哈希值，该哈希值用于决定在哈希集合中的存储位置
+
+  重写`equals`方法的同时必须重写`hashcode`方法
+
++ 为什么
+
+  重写`equals`方法，则认为我们的需求是：如果两个对象类型相同，属性相等，则认为这两个对象相等
+
+  在使用哈希集合存储数据时，如`hashSet`，集合会使用对象的`hashcode`找到他的存储位置
+
+  如果我们只重写了`equals`方法，没有重写`hashcode`方法，则会出现如下情况
+
+  ```java
+  Set<A> aSet = new HashSet<>();
+  A a1 = new A("a",1);
+  A a2 = new A("a",1);
+  aSet.add(a1);
+  aSet.add(a2);		// 虽然 a1.equals(a2) ，因为根据Object类中hashcode方法生成的哈希值不等，
+  								// 所以不会认为是相同的数据，仍然可以放进去
+  ```
+
++ 如何重写
+
+  参见[equals](#equals) 
+
+## instanceof与getClass
+
++ instanceof
+
+  + java关键字
+
+  + 语法
+
+    ```java
+    if (!(o instanceof A)) return false;
+    ```
+
+  + 功能：判断对象`o`是否为class`A`的1个实例
+
+  + 说明：如果`o`为`O`的实例，`A`为`O`的父类，则`o instanceof A`结果也为`true`
+
++ getClass
+
+  + `Object`类的方法
+  + 用户获取对象的类的信息
+
++ 说明
+
+  ```java
+  class A{
+    void test(Object o){
+      System.out.println(getClass() == o.getClass());
+      System.out.println(o instanceof A);
+      // 上面结果为true，则下面结果一定为true
+      // 下面结果为true，则上面结果不一定为true，因为o也可能为A的子类的实例
+    }
+  }
+  ```
+
+  
 
 # java高级编程
 
@@ -1343,6 +1440,54 @@ Map<String,Object> map = Collections.synchronizedMap(new HashMap<>());
 + 不允许null值
 + 初始容量为11，加载因子为0.75
 
+### hashSet
+
++ hashSet是基于hashMap实现的
+
+  ```java
+  public HashSet() {
+    map = new HashMap<>();
+  }
+  ```
+
+  使用存储对象的`hashcode`在`hashMap`中寻找桶的位置
+
++ 使用`hashSet`一般需要重写对象的`equals`和`hashcode`方法
+
++ 操作`hashSet`中数据时，先判断`hashCode`是否相等，相等继续使用`equals`方法判断对象是够相等，然后操作数据
+
++ 不要修改`hashSet`中数据
+
+  `hashSet`中数据改变后，不会重新计算新的`hashcode`并更改存储位置
+
+  ```java
+  Set<A> aSet = new HashSet<>();
+  A a1 = new A("a",1);
+  A a2 = new A("a",1);
+  A a3 = new A("a",2);
+  A a4 = new A("a",2);
+  // 使用age等于1时计算的hashcode存储在hashSet中
+  aSet.add(a1);
+  a1.setAge(2);
+  System.out.println(a1.equals(a3));
+  // 虽然 a1.equals(a3)，但是存储a1时使用的是age=1时的hashcode，
+  // 而存储a3时使用的是age=2时的hashcode，所以hashcode值不同，会导致a3作为新对象存储
+  aSet.add(a3);
+  // a2的hashcode与存储a1时使用的hashcode相同，但是 a1.equals(a2)=false，所以a2作为新对象存储
+  aSet.add(a2);
+  // a4与a3hashcode值相同，并且 a1.equals(a2)=true，所以认为集合中已经存在该对象，不会存储a4
+  aSet.add(a4);
+  for (A anASet : aSet) {
+    System.out.println(anASet);
+  }
+  /** 打印结果
+   * true
+   * A{name='a', age=2}
+   * A{name='a', age=1}
+   * A{name='a', age=2}
+   */
+  ```
+
 ### ConcurrentHashMap
 
 参见[ConcurrentHashMap](#ConcurrentHashMap) 
@@ -1350,6 +1495,18 @@ Map<String,Object> map = Collections.synchronizedMap(new HashMap<>());
 
 
 # JVM
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
