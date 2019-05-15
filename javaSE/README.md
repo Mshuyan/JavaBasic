@@ -65,10 +65,10 @@
 
 ### 异常分类
 
-+ 非检查异常/强制性异常
++ 非检查异常/非强制性异常
 
   + 非检查异常的意思是，不应该通过异常处理器解决的异常；这类异常也叫非强制性异常，因为这类异常不是必须通过异常处理器处理的
-  + 这类异常包括：Error、RuntineException
+  + 这类异常包括：Error、RuntimeException
 
 + 检查异常/强制性异常
 
@@ -1433,12 +1433,36 @@ Map<String,Object> map = Collections.synchronizedMap(new HashMap<>());
 
 + 线程不安全
 
++ 无序集合
+
+### LinkedHashMap
+
+> 参考：[Java集合之LinkedHashMap](https://www.cnblogs.com/xiaoxi/p/6170590.html) 
+
++ 特点
+
+  + key和value都允许为空
+  + key重复会被覆盖，value可以重复
+  + 有序集合
+  + 非线程安全
+
++ `accessOrder`属性
+
+  在`LinkedHashMap`的构造方法中可以通过该属性指定排序方式
+
+  + true：按最少使用排序
+
+    因为该属性，`LinkedHashMap`天然支持LRU算法
+
+  + false：按插入顺序排序(默认)
+
 ### hashTable
 
 + 实现方式为：哈希表
 + 线程安全的集合
 + 不允许null值
 + 初始容量为11，加载因子为0.75
++ 无序集合
 
 ### hashSet
 
@@ -1451,6 +1475,8 @@ Map<String,Object> map = Collections.synchronizedMap(new HashMap<>());
   ```
 
   使用存储对象的`hashcode`在`hashMap`中寻找桶的位置
+
++ 无序集合
 
 + 使用`hashSet`一般需要重写对象的`equals`和`hashcode`方法
 
