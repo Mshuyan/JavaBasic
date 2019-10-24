@@ -1330,6 +1330,16 @@ wait/notify必须存在于synchronized块中。并且，这三个关键字针对
   + 异步方法必须是非static方法
 
   + 方法调用的实例必须由spring创建和管理
+  
+  + 不能在同一个类中调用异步方法，解决方案：
+  
+    + @EnableAsync(mode=AdviceMode.ASPECTJ)，并引入`spring-aspects`依赖
+  
+      >  测试未成功
+  
+    + 使用内部类，将异步方法放在内部类中
+  
+  + 使用`@Async`异步支持时，如果不指定线程池，使用默认线程池，线程很多时，容易造成内存溢出
 
 ### 面试题
 
